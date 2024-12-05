@@ -1,6 +1,6 @@
-# Configuring BGP usign BIRD on an Ubuntu Router. 
+# Configuring BGP using BIRD on an Ubuntu Router. 
 
-This leverages NSX as one of the peers deployed in a nested enviornment. The T0 will use one of the interfaces (vlan104 with IP address 192.168.104.1) as the default TOR switch.
+This leverages NSX as one of the peers deployed in a nested environment. The T0 will use one of the interfaces (vlan104 with IP address 192.168.104.1) as the default TOR switch.
 
 ## BIRD setup and config
 
@@ -17,12 +17,12 @@ sudo cat /etc/bird/bird.conf # Modify the config as per the output below
 ```t
 log syslog all;
 
-router id 198.168.104.1; # Interface on the Ubuntu router to use to exchnage route with the NSX T0
+router id 198.168.104.1; # Interface on the Ubuntu router to use to exchange route with the NSX T0
 
 protocol kernel {
 	scan time 60;
 	import all;
-	export all;   # Actually insert routes into the kernel routing table
+	export all;   # insert routes into the kernel routing table
 }
 
 protocol device {
@@ -35,7 +35,7 @@ protocol direct {
 protocol bgp {
   description "BIRD BGP CONFIG";
   local as 65001;
-  neighbor 192.168.104.2 as 65003; # Interface on the NSX T0 router to use to exchnage route with the Ubuntu router
+  neighbor 192.168.104.2 as 65003; # Interface on the NSX T0 router to use to exchange route with the Ubuntu router
   multihop;
   graceful restart;
   import all;
@@ -44,7 +44,7 @@ protocol bgp {
 }
 
 protocol static {
-  route 0.0.0.0/0 via 192.168.104.1; # Default route that NSX T0 will use. This disables the need to configure static route on the T0
+  route 0.0.0.0/0 via 192.168.104.1; # Default route that NSX T0 will use. This disables the need to configure a static route on the T0
 }
 ```
 
@@ -64,7 +64,7 @@ Configurations that need to be done -
 ![T0 configuration](image-1.png)
 
 ### 1. Create a new IP Prefix list
-Add the Namespace network(s) in the **Deny** list.  (Had issues using the system provided IP Prefix list, hence had to create a new one)
+Add the Namespace network(s) to the **Deny** list.  (I had issues using the system-provided IP Prefix list; hence had to create a new one)
 
 ![alt text](image-2.png)
 
@@ -72,7 +72,7 @@ Add the Namespace network(s) in the **Deny** list.  (Had issues using the system
 
 ![alt text](image-3.png)
 
-Add a match criteria with the IP Prefix list created in step 1 as the member. 
+Add match criteria with the IP Prefix list created in step 1 as the member. 
 
 ![alt text](image-4.png)
 
@@ -85,7 +85,7 @@ Enable BGP.
 Add the Ubuntu as the BGP neighbor. Remember to set the password - "vmware" - as it was set in the Bird configuration above. 
 ![alt text](image-6.png)
 
-Additionally modify the Route Filter and add the Route Map created in Step 2, as an Out Filter. 
+Additionally, modify the Route Filter and add the Route Map created in Step 2 as an Out Filter. 
 
 ![alt text](image-7.png)
 
@@ -170,7 +170,9 @@ admin@192.168.100.71's password:
 Last login: Wed Dec  4 22:32:38 2024 from 192.168.100.1
 NSX CLI (Edge 4.2.1.0.0.24304123). Press ? for command list or enter: help
 
-edge-1> vrf 1
+edge-1> get logical-routers 
+
+edge-1> vrf 1 # Change context to the SERVICE_ROUTER_TIER0
 
 edge-1(tier0_sr[1])> get route
 
